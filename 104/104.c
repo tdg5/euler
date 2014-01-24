@@ -24,25 +24,23 @@ void big_addition(int recv_array[], int add_array[]) {
 
 
 int double_pandigital(int ints[]) {
-  int i, digits[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int i, sum = 0, product = 1;
   for(i = MAX_INT_LEN - 9; i < MAX_INT_LEN; i++) {
-    digits[ints[i]] = 1;
+    sum += ints[i];
+    product *= ints[i];
   }
-  for(i = 1; i < 10; i++) {
-    if(digits[i] != 1) {
-      return 0;
-    }
-    digits[i] = 0;
+  if(sum != 45 || product != 362880) {
+    return 0;
   }
   int j;
+  product = 1;
   for(j = 0; ints[j] == 0; j++);
   for(i = j; i < j + 9; i++) {
-    digits[ints[i]] = 1;
+    sum -= ints[i];
+    product *= ints[i];
   }
-  for(i = 1; i < 10; i++) {
-    if(digits[i] == 0) {
-      return 0;
-    }
+  if(sum != 0 || product != 362880) {
+    return 0;
   }
   return 1;
 }
