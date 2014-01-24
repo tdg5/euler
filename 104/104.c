@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define MAX_INT_LEN 70000
+#define MAX_INT_LEN 69000
 
 void big_addition(int[], int[]);
 int double_pandigital(int ints[]);
@@ -8,7 +8,7 @@ void print_iteration(int, int[]);
 
 void big_addition(int recv_array[], int add_array[]) {
   int i, carry = 0, sum, start_pos;
-  for(start_pos = 0; recv_array[start_pos] == 0 && add_array[start_pos] == 0; start_pos++);
+  for(start_pos = 0; add_array[start_pos] == 0; start_pos++);
   for(i = MAX_INT_LEN - 1; i >= start_pos; i--) {
     sum = recv_array[i] + add_array[i] + carry;
     if(sum >= 10) {
@@ -72,6 +72,9 @@ int main() {
       other_ptr = n1;
     }
     big_addition(iter_ptr, other_ptr);
+    /*if(iteration == 541 || iteration == 2749) {*/
+      /*print_iteration(iteration, iter_ptr);*/
+    /*}*/
     if(iter_ptr[1] != 0) {
       printf("No precision remaining, exiting.\n");
       return 1;
