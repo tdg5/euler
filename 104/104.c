@@ -1,30 +1,36 @@
 #include <stdio.h>
 #define MAX_INT_LEN 69000
 
-void big_addition(int[], int[]);
-int double_pandigital(int ints[]);
-void print_iteration(int, int[]);
+void big_addition(short[], short[], int*);
+int double_pandigital(short ints[], int*);
+void print_iteration(int, short[]);
 
 
-void big_addition(int recv_array[], int add_array[]) {
-  int i, carry = 0, sum, start_pos;
-  for(start_pos = 0; add_array[start_pos] == 0; start_pos++);
-  for(i = MAX_INT_LEN - 1; i >= start_pos; i--) {
-    sum = recv_array[i] + add_array[i] + carry;
-    if(sum >= 10) {
+void big_addition(short recv_array[], short add_array[], int *active_length) {
+  int i,
+    carry = 0,
+    upper = MAX_INT_LEN - 1,
+    lower = MAX_INT_LEN - *active_length;
+  for(i = upper; i >= lower; i--) {
+    recv_array[i] += add_array[i] + carry;
+    if(recv_array[i] > 9) {
       carry = 1;
-      sum %= 10;
+      recv_array[i] -= 10;
     } else {
       carry = 0;
     }
-    recv_array[i] = sum;
   }
-  recv_array[i] += carry;
+  if(carry) {
+    recv_array[i]++;
+    (*active_length)++;
+  }
 }
 
 
-int double_pandigital(int ints[]) {
-  int i, sum = 0, product = 1;
+int double_pandigital(short ints[], int *active_length) {
+  int i,
+    product = 1,
+    sum = 0;
   for(i = MAX_INT_LEN - 9; i < MAX_INT_LEN; i++) {
     sum += ints[i];
     product *= ints[i];
@@ -32,10 +38,10 @@ int double_pandigital(int ints[]) {
   if(sum != 45 || product != 362880) {
     return 0;
   }
-  int j;
   product = 1;
-  for(j = 0; ints[j] == 0; j++);
-  for(i = j; i < j + 9; i++) {
+  int lower = MAX_INT_LEN -*active_length,
+    upper = lower + 9;
+  for(i = lower; i < upper; i++) {
     sum -= ints[i];
     product *= ints[i];
   }
@@ -48,44 +54,41 @@ int double_pandigital(int ints[]) {
 
 int main() {
   printf("Processing with MAX_INT_LEN=%d\n", MAX_INT_LEN);
-  int n1[MAX_INT_LEN],
+  short n1[MAX_INT_LEN],
     n2[MAX_INT_LEN],
-    iteration = 2,
-    i;
-  int *iter_ptr,
-    *other_ptr;
+    *pair[] = {n2, n1};
 
-  for(i = 0; i < MAX_INT_LEN; i++) {
+  int i,
+    active_length = 1,
+    iter_flag = 0,
+    iteration = 2;
+
+  // Initialize
+  for(i = 0; i < MAX_INT_LEN - 1; i++) {
     n1[i] = n2[i] = 0;
   }
   n1[MAX_INT_LEN - 1] = n2[MAX_INT_LEN - 1] = 1;
-  iter_ptr = n2;
-  other_ptr = n1;
 
-  while(!double_pandigital(iter_ptr)) {
+  while(!double_pandigital(pair[iter_flag], &active_length)) {
     iteration++;
-    if(iter_ptr == n2) {
-      iter_ptr = n1;
-      other_ptr = n2;
-    } else {
-      iter_ptr = n2;
-      other_ptr = n1;
-    }
-    big_addition(iter_ptr, other_ptr);
+    iter_flag = !iter_flag;
+    big_addition(pair[iter_flag], pair[!iter_flag], &active_length);
     /*if(iteration == 541 || iteration == 2749) {*/
-      /*print_iteration(iteration, iter_ptr);*/
+      /*print_iteration(iteration, pair[iter_flag]);*/
     /*}*/
-    if(iter_ptr[1] != 0) {
-      printf("No precision remaining, exiting.\n");
-      return 1;
-    }
+    /*if(pair[iter_flag][1] != 0) {*/
+      /*printf("No precision remaining, exiting.\n");*/
+      /*return 1;*/
+    /*}*/
   }
-  print_iteration(iteration, iter_ptr);
+
+  /*print_iteration(iteration, pair[iter_flag]);*/
+  printf("Iteration of first double pandigitial fib: %d\n", iteration);
   return 0;
 }
 
 
-void print_iteration(int iteration, int ints[]) {
+void print_iteration(int iteration, short ints[]) {
   int i, j;
   for(j = 0; ints[j] == 0; j++);
   printf("\nIteration %d: ", iteration);
