@@ -1,5 +1,6 @@
 #include <stdio.h>
 #define MAX_INT_LEN 69000
+#define LEADING_PRECISION 50
 
 void big_addition(short[], short[], int*);
 int double_pandigital(short ints[], int*);
@@ -9,8 +10,29 @@ void print_iteration(int, short[]);
 void big_addition(short recv_array[], short add_array[], int *active_length) {
   int i,
     carry = 0,
-    upper = MAX_INT_LEN - 1,
-    lower = MAX_INT_LEN - *active_length;
+    lower = MAX_INT_LEN - 9,
+    overlap = *active_length <= (9 + LEADING_PRECISION) ? 1 : 0,
+    upper = MAX_INT_LEN - 1;
+
+  for(i = upper; i >= lower; i--) {
+    recv_array[i] += add_array[i] + carry;
+    if(recv_array[i] > 9) {
+      carry = 1;
+      recv_array[i] -= 10;
+    } else {
+      carry = 0;
+    }
+  }
+  if(overlap) {
+    recv_array[i] += carry;
+    carry = 0;
+    if(*active_length <= 10) {
+      (*active_length)++;
+      return;
+    }
+  }
+  lower = MAX_INT_LEN - *active_length,
+  upper = overlap ? MAX_INT_LEN - 10 : lower + LEADING_PRECISION + 1;
   for(i = upper; i >= lower; i--) {
     recv_array[i] += add_array[i] + carry;
     if(recv_array[i] > 9) {
@@ -23,6 +45,10 @@ void big_addition(short recv_array[], short add_array[], int *active_length) {
   if(carry) {
     recv_array[i]++;
     (*active_length)++;
+    if(!overlap) {
+      recv_array[upper] = 0;
+      add_array[upper] = 0;
+    }
   }
 }
 
@@ -53,7 +79,6 @@ int double_pandigital(short ints[], int *active_length) {
 
 
 int main() {
-  printf("Processing with MAX_INT_LEN=%d\n", MAX_INT_LEN);
   short n1[MAX_INT_LEN],
     n2[MAX_INT_LEN],
     *pair[] = {n2, n1};
@@ -76,10 +101,10 @@ int main() {
     /*if(iteration == 541 || iteration == 2749) {*/
       /*print_iteration(iteration, pair[iter_flag]);*/
     /*}*/
-    /*if(pair[iter_flag][1] != 0) {*/
-      /*printf("No precision remaining, exiting.\n");*/
-      /*return 1;*/
-    /*}*/
+    if(pair[iter_flag][1] != 0) {
+      printf("No precision remaining, exiting.\n");
+      return 1;
+    }
   }
 
   /*print_iteration(iteration, pair[iter_flag]);*/
